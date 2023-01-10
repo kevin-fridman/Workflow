@@ -1,11 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [ "main", "dev_branch" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -15,7 +12,7 @@ jobs:
       if: github.event_name == 'pull_request'
       run: |
         echo "Checking for review..."
-        REVIEW_STATE=$(curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${{ github.event.pull_request.head.repo.owner.login }}/${{ github.event.pull_request.head.repo.name }}/pulls/${{ github.event.pull_request.number }}/reviews?per_page=100 | jq '.[] | select(.user.login == "kefr1901") | .state')
+        REVIEW_STATE=$(curl --silent -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${{ github.event.pull_request.head.repo.owner.login }}/${{ github.event.pull_request.head.repo.name }}/pulls/${{ github.event.pull_request.number }}/reviews?per_page=100 | jq '.[] | select(.user.login != "excluded_username") | .state')
         echo "Review status: ${{ REVIEW_STATE }}"
         if [ "${{ REVIEW_STATE }}" != "\"APPROVED\"" ]; then
           echo "Review has not been approved."
